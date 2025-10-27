@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 export class Player {
     camera: THREE.Camera;
-    velocity = new THREE.Vector3();
-    direction = new THREE.Vector3();
-    speed = 0.1;
+    velocity: THREE.Vector3 = new THREE.Vector3();
+    speed = 0.2;
+    onGround = true;
 
     constructor(camera: THREE.Camera) {
         this.camera = camera;
@@ -18,6 +18,12 @@ export class Player {
             if (e.key === 's') this.velocity.z = this.speed;
             if (e.key === 'a') this.velocity.x = -this.speed;
             if (e.key === 'd') this.velocity.x = this.speed;
+            if (e.key === ' ') {
+                if (this.onGround) {
+                    this.velocity.y = 0.5;
+                    this.onGround = false;
+                }
+            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -27,6 +33,12 @@ export class Player {
     }
 
     update() {
+        this.velocity.y -= 0.02; // 重力
         this.camera.position.add(this.velocity);
+        if (this.camera.position.y <= 2) {
+            this.camera.position.y = 2;
+            this.velocity.y = 0;
+            this.onGround = true;
+        }
     }
 }
