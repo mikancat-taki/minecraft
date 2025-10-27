@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "start": "vite",               // 開発サーバーを起動
+    "build": "vite build",         // プロダクション用ビルド
+    "preview": "vite preview"      // ビルド後の確認
   },
   "dependencies": {
     "three": "^0.163.0",
