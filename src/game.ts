@@ -80,10 +80,11 @@ export class Game {
         this.world.generateFlatWorld();
         this.animate();
     }
-
     animate = () => {
-        requestAnimationFrame(this.animate);
-        this.player.update();
-        this.renderer.render(this.scene, this.camera);
-    }
+    requestAnimationFrame(this.animate);
+    this.player.update();
+    this.world.update(this.player.camera.position); // 無限生成
+    this.renderer.render(this.scene, this.camera);
+}
+
 }
