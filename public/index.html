@@ -6,11 +6,17 @@
   <style>
     body { margin:0; overflow:hidden; }
     canvas { display:block; }
-    #blockType { position: absolute; top: 10px; left: 10px; color:white; font-size: 18px; }
+    #ui {
+      position: absolute; top:10px; left:10px; color:white;
+      font-family: monospace; font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div id="blockType">Selected: Grass</div>
+  <div id="ui">
+    <div id="blockType">Selected: Grass</div>
+    <div id="coords">X:0 Y:0 Z:0</div>
+  </div>
   <script type="module" src="../dist/index.js"></script>
 </body>
 </html>
