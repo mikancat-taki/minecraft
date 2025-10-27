@@ -8,7 +8,7 @@ export class Player {
 
     constructor(camera: THREE.Camera) {
         this.camera = camera;
-        this.camera.position.set(0, 2, 5);
+        this.camera.position.set(0, 5, 0);
         this.initControls();
     }
 
@@ -25,7 +25,6 @@ export class Player {
                 }
             }
         });
-
         window.addEventListener('keyup', (e) => {
             if (['w','s'].includes(e.key)) this.velocity.z = 0;
             if (['a','d'].includes(e.key)) this.velocity.x = 0;
@@ -33,10 +32,10 @@ export class Player {
     }
 
     update() {
-        this.velocity.y -= 0.02; // 重力
+        this.velocity.y -= 0.02;
         this.camera.position.add(this.velocity);
-        if (this.camera.position.y <= 2) {
-            this.camera.position.y = 2;
+        if (this.camera.position.y <= 5) {
+            this.camera.position.y = 5;
             this.velocity.y = 0;
             this.onGround = true;
         }
