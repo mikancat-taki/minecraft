@@ -1,18 +1,77 @@
 import * as THREE from 'three';
+import SimplexNoise from 'simplex-noise';
 import { createBlock } from './block';
+
+const CHUNK_SIZE = 16;
+const VIEW_DISTANCE = 3; // チャンクの半径
 
 export class World {
     scene: THREE.Scene;
+    chunks: Map<string, THREE.Group> = new Map();
+    noise: SimplexNoise;
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
+        this.noise = new SimplexNoise(Math.random.toString());
     }
 
-    generateFlatWorld() {
-        for(let x= -10; x<10; x++){
-            for(let z= -10; z<10; z++){
-                const block = createBlock('grass', new THREE.Vector3(x,0,z));
-                this.scene.add(block);
+    getChunkKey(x: number, z: number) {
+        return `${x},${z}`;
+    }
+
+    generateChunk(chunkX: number, chunkZ: number) {
+        const group = new THREE.Group();
+
+        for (let x = 0; x < CHUNK_SIZE; x++) {
+            for (let z = 0; z < CHUNK_SIZE; z++) {
+                const worldX = chunkX * CHUNK_SIZE + x;
+                const worldZ = chunkZ * CHUNK_SIZE + z;
+                const height = Math.floor((this.noise.noise2D(worldX/50, worldZ/50)+1)/2*5); // 高さ0~5
+                for (let y = 0; y <= height; y++) {
+                    let type = 'dirt';
+                    if (y === height) type = 'grass';
+                    const block = createBlock(type, new THREE.Vector3(worldX, y, worldZ));
+                    group.add(block);
+                }
+            }
+        }
+
+        this.scene.add(group);
+        this.chunks.set(this.getChunkKey(chunkX, chunkZ), group);
+    }
+
+    removeChunk(chunkX: number, chunkZ: number) {
+        const key = this.getChunkKey(chunkX, chunkZ);
+        const group = this.chunks.get(key);
+        if (group) {
+            this.scene.remove(group);
+            group.clear();
+            this.chunks.delete(key);
+        }
+    }
+
+    update(playerPos: THREE.Vector3) {
+        const currentChunkX = Math.floor(playerPos.x / CHUNK_SIZE);
+        const currentChunkZ = Math.floor(playerPos.z / CHUNK_SIZE);
+
+        const neededChunks = new Set<string>();
+
+        // プレイヤー周囲のチャンク生成
+        for (let x = currentChunkX - VIEW_DISTANCE; x <= currentChunkX + VIEW_DISTANCE; x++) {
+            for (let z = currentChunkZ - VIEW_DISTANCE; z <= currentChunkZ + VIEW_DISTANCE; z++) {
+                const key = this.getChunkKey(x,z);
+                neededChunks.add(key);
+                if (!this.chunks.has(key)) {
+                    this.generateChunk(x,z);
+                }
+            }
+        }
+
+        // 不要チャンク削除
+        for (let key of Array.from(this.chunks.keys())) {
+            if (!neededChunks.has(key)) {
+                const [x, z] = key.split(',').map(Number);
+                this.removeChunk(x, z);
             }
         }
     }
